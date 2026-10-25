@@ -1,0 +1,14 @@
+# Geheimnisse
+.env
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Claude Code (persoenliche Dateien)
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Betriebssystem
+Thumbs.db
+.DS_Store
