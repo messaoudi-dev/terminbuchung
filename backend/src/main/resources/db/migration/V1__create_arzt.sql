@@ -1,0 +1,5 @@
+CREATE TABLE arzt (
+    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name         VARCHAR(100) NOT NULL,
+    fachrichtung VARCHAR(100) NOT NULL
+);
