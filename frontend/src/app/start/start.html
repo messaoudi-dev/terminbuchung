@@ -1,0 +1,36 @@
+<h1>Willkommen</h1>
+
+@if (authService.rolle() === 'PATIENT') {
+  <p>Du bist als Patient angemeldet.</p>
+  <div class="kacheln">
+    <mat-card>
+      <mat-card-header><mat-card-title>Ärzte</mat-card-title></mat-card-header>
+      <mat-card-content>Alle Ärzte der Praxis ansehen.</mat-card-content>
+      <mat-card-actions><a mat-button routerLink="/aerzte">Öffnen</a></mat-card-actions>
+    </mat-card>
+    <mat-card>
+      <mat-card-header><mat-card-title>Meine Termine</mat-card-title></mat-card-header>
+      <mat-card-content>Deine Termine ansehen und stornieren.</mat-card-content>
+      <mat-card-actions><a mat-button routerLink="/termine">Öffnen</a></mat-card-actions>
+    </mat-card>
+    <mat-card>
+      <mat-card-header><mat-card-title>Termin buchen</mat-card-title></mat-card-header>
+      <mat-card-content>Einen neuen Termin bei einem Arzt buchen.</mat-card-content>
+      <mat-card-actions><a mat-button routerLink="/termine/buchen">Öffnen</a></mat-card-actions>
+    </mat-card>
+  </div>
+} @else if (authService.rolle() === 'PRAXIS') {
+  <p>Du bist als Praxis angemeldet.</p>
+  <div class="kacheln">
+    <mat-card>
+      <mat-card-header><mat-card-title>Ärzte</mat-card-title></mat-card-header>
+      <mat-card-content>Ärzte anlegen, ändern und löschen.</mat-card-content>
+      <mat-card-actions><a mat-button routerLink="/aerzte">Öffnen</a></mat-card-actions>
+    </mat-card>
+    <mat-card>
+      <mat-card-header><mat-card-title>Alle Termine</mat-card-title></mat-card-header>
+      <mat-card-content>Alle Termine der Praxis ansehen und stornieren.</mat-card-content>
+      <mat-card-actions><a mat-button routerLink="/termine">Öffnen</a></mat-card-actions>
+    </mat-card>
+  </div>
+}

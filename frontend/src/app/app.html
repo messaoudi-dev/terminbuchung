@@ -1,0 +1,22 @@
+@if (authService.istAngemeldet()) {
+  <mat-toolbar>
+    <a class="marke" routerLink="/start">Terminbuchung</a>
+    <nav>
+      <a mat-button routerLink="/aerzte" routerLinkActive="aktiv">Ärzte</a>
+      @if (authService.rolle() === 'PATIENT') {
+        <a mat-button routerLink="/termine" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }">
+          Meine Termine
+        </a>
+        <a mat-button routerLink="/termine/buchen" routerLinkActive="aktiv">Termin buchen</a>
+      } @else if (authService.rolle() === 'PRAXIS') {
+        <a mat-button routerLink="/termine" routerLinkActive="aktiv">Alle Termine</a>
+      }
+    </nav>
+    <span class="abstand"></span>
+    <button mat-button type="button" (click)="abmelden()">Abmelden</button>
+  </mat-toolbar>
+}
+
+<main>
+  <router-outlet />
+</main>
