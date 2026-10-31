@@ -1,11 +1,14 @@
 # Geheimnisse
 .env
+.env.*
+!.env.example
 
 # IntelliJ IDEA
 .idea/
 *.iml
 
 # Claude Code (persoenliche Dateien)
+CLAUDE.md
 CLAUDE.local.md
 .claude/settings.local.json
 
