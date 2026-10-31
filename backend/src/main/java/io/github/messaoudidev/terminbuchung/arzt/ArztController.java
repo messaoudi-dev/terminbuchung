@@ -3,6 +3,7 @@ package io.github.messaoudidev.terminbuchung.arzt;
 import java.net.URI;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/aerzte")
 @Tag(name = "Ärzte")
+@SecurityRequirement(name = "bearerAuth")
 public class ArztController {
 
     private final ArztService arztService;
