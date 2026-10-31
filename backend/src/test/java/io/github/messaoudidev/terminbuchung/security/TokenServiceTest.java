@@ -43,6 +43,25 @@ class TokenServiceTest {
     }
 
     @Test
+    void erstelleToken_benutzer_enthaeltEmail() {
+        // Arrange
+        Clock clock = Clock.fixed(Instant.parse("2026-11-02T08:00:00Z"), ZoneId.of("Europe/Berlin"));
+        JwtConfig jwtConfig = new JwtConfig(SECRET);
+        TokenService tokenService = new TokenService(jwtConfig.jwtEncoder(), clock);
+        Benutzer benutzer = new Benutzer("patient@example.com", "hash", Rolle.PATIENT);
+        ReflectionTestUtils.setField(benutzer, "id", 42L);
+
+        // Act
+        String token = tokenService.erstelleToken(benutzer);
+
+        // Assert
+        NimbusJwtDecoder decoder = (NimbusJwtDecoder) jwtConfig.jwtDecoder();
+        decoder.setJwtValidator(jwt -> OAuth2TokenValidatorResult.success());
+        Jwt jwt = decoder.decode(token);
+        assertThat(jwt.getClaimAsString("email")).isEqualTo("patient@example.com");
+    }
+
+    @Test
     void jwtConfig_secretKuerzerAls32Byte_wirftException() {
         // Act + Assert
         assertThatThrownBy(() -> new JwtConfig("zu-kurz"))

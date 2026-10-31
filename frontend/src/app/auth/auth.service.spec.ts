@@ -76,7 +76,10 @@ describe('AuthService', () => {
 
   it('rolleUndBenutzerId_gueltigesToken_liestClaims', () => {
     // Arrange
-    sessionStorage.setItem('token', erzeugeTestToken({ sub: '42', rolle: 'PRAXIS', exp: IN_EINER_STUNDE }));
+    sessionStorage.setItem(
+      'token',
+      erzeugeTestToken({ sub: '42', rolle: 'PRAXIS', email: 'praxis@example.com', exp: IN_EINER_STUNDE }),
+    );
 
     // Act
     const service = TestBed.inject(AuthService);
@@ -85,12 +88,16 @@ describe('AuthService', () => {
     expect(service.istAngemeldet()).toBe(true);
     expect(service.rolle()).toBe('PRAXIS');
     expect(service.benutzerId()).toBe(42);
+    expect(service.email()).toBe('praxis@example.com');
   });
 
   it('istAngemeldet_tokenAbgelaufen_false', () => {
     // Arrange
     const abgelaufen = JETZT.getTime() / 1000 - 1;
-    sessionStorage.setItem('token', erzeugeTestToken({ sub: '42', rolle: 'PATIENT', exp: abgelaufen }));
+    sessionStorage.setItem(
+      'token',
+      erzeugeTestToken({ sub: '42', rolle: 'PATIENT', email: 'patient@example.com', exp: abgelaufen }),
+    );
 
     // Act
     const service = TestBed.inject(AuthService);
@@ -100,6 +107,7 @@ describe('AuthService', () => {
     expect(service.token()).toBeNull();
     expect(service.rolle()).toBeNull();
     expect(service.benutzerId()).toBeNull();
+    expect(service.email()).toBeNull();
   });
 
   it('istAngemeldet_ohneToken_false', () => {

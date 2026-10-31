@@ -57,4 +57,36 @@ describe('App', () => {
     expect(text).toContain('Alle Termine');
     expect(text).not.toContain('Termin buchen');
   });
+
+  it('benutzerInfo_patient_zeigtEmailUndRolle', async () => {
+    // Arrange
+    sessionStorage.setItem(
+      'token',
+      erzeugeTestToken({ sub: '42', rolle: 'PATIENT', email: 'patient@example.com', exp: IN_EINER_STUNDE }),
+    );
+
+    // Act
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+
+    // Assert
+    const info = (fixture.nativeElement as HTMLElement).querySelector('.benutzer-info')?.textContent;
+    expect(info?.trim()).toBe('patient@example.com · Patient');
+  });
+
+  it('benutzerInfo_praxis_zeigtEmailUndRolle', async () => {
+    // Arrange
+    sessionStorage.setItem(
+      'token',
+      erzeugeTestToken({ sub: '1', rolle: 'PRAXIS', email: 'praxis@example.com', exp: IN_EINER_STUNDE }),
+    );
+
+    // Act
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+
+    // Assert
+    const info = (fixture.nativeElement as HTMLElement).querySelector('.benutzer-info')?.textContent;
+    expect(info?.trim()).toBe('praxis@example.com · Praxis');
+  });
 });

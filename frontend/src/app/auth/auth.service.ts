@@ -8,6 +8,7 @@ const TOKEN_KEY = 'token';
 interface TokenClaims {
   sub: string;
   rolle: Rolle;
+  email?: string;
   exp: number;
 }
 
@@ -47,6 +48,11 @@ export class AuthService {
 
   rolle(): Rolle | null {
     return this.aktuelleClaims()?.rolle ?? null;
+  }
+
+  // Ältere Tokens von vor dieser Änderung enthalten noch keine E-Mail.
+  email(): string | null {
+    return this.aktuelleClaims()?.email ?? null;
   }
 
   benutzerId(): number | null {

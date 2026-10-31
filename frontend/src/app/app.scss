@@ -10,8 +10,24 @@ mat-toolbar {
   font: var(--mat-sys-title-large);
 }
 
-.aktiv {
-  background-color: var(--mat-sys-secondary-container);
+nav a {
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+
+  &:hover {
+    background-color: var(--mat-sys-surface-container-high);
+    border-bottom-color: var(--mat-sys-outline);
+  }
+}
+
+nav a.aktiv {
+  border-bottom-color: var(--mat-sys-primary);
+  font-weight: 500;
+}
+
+.benutzer-info {
+  font: var(--mat-sys-body-medium);
+  opacity: 0.8;
 }
 
 .abstand {

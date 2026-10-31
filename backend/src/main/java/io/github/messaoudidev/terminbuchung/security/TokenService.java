@@ -17,6 +17,7 @@ public class TokenService {
 
     public static final Duration GUELTIGKEIT = Duration.ofHours(1);
     public static final String ROLLE_CLAIM = "rolle";
+    public static final String EMAIL_CLAIM = "email";
 
     private final JwtEncoder jwtEncoder;
     private final Clock clock;
@@ -33,6 +34,7 @@ public class TokenService {
                 .issuedAt(jetzt)
                 .expiresAt(jetzt.plus(GUELTIGKEIT))
                 .claim(ROLLE_CLAIM, benutzer.getRolle().name())
+                .claim(EMAIL_CLAIM, benutzer.getEmail())
                 .build();
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();

@@ -14,6 +14,12 @@ export class App {
   protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  protected benutzerInfo(): string {
+    const rolle = this.authService.rolle() === 'PRAXIS' ? 'Praxis' : 'Patient';
+    const email = this.authService.email();
+    return email === null ? rolle : `${email} · ${rolle}`;
+  }
+
   protected abmelden(): void {
     this.authService.abmelden();
     this.router.navigate(['/login']);
