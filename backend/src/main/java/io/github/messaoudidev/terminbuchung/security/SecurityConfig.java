@@ -32,6 +32,9 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/aerzte/**").authenticated()
                         .requestMatchers("/api/aerzte/**").hasRole("PRAXIS")
+                        // Buchen darf nur ein Patient, weil der Termin immer für den angemeldeten Benutzer gebucht wird.
+                        .requestMatchers(HttpMethod.POST, "/api/termine").hasRole("PATIENT")
+                        .requestMatchers("/api/termine/**").hasAnyRole("PATIENT", "PRAXIS")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))

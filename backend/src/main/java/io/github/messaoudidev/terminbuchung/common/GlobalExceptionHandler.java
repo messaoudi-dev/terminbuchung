@@ -6,8 +6,13 @@ import java.util.Map;
 import io.github.messaoudidev.terminbuchung.arzt.ArztNotFoundException;
 import io.github.messaoudidev.terminbuchung.benutzer.EmailBereitsVergebenException;
 import io.github.messaoudidev.terminbuchung.benutzer.UngueltigeAnmeldedatenException;
+import io.github.messaoudidev.terminbuchung.termin.StornierungNichtMoeglichException;
+import io.github.messaoudidev.terminbuchung.termin.TerminBereitsVergebenException;
+import io.github.messaoudidev.terminbuchung.termin.TerminNotFoundException;
+import io.github.messaoudidev.terminbuchung.termin.UngueltigeTerminzeitException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -56,6 +61,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UngueltigeAnmeldedatenException.class)
     public ProblemDetail handleUngueltigeAnmeldedaten(UngueltigeAnmeldedatenException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(TerminNotFoundException.class)
+    public ProblemDetail handleTerminNotFound(TerminNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(UngueltigeTerminzeitException.class)
+    public ProblemDetail handleUngueltigeTerminzeit(UngueltigeTerminzeitException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(TerminBereitsVergebenException.class)
+    public ProblemDetail handleTerminBereitsVergeben(TerminBereitsVergebenException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(StornierungNichtMoeglichException.class)
+    public ProblemDetail handleStornierungNichtMoeglich(StornierungNichtMoeglichException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    // @Version: Ein anderer Request hat denselben Datensatz zwischen Laden und Speichern geändert.
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail handleOptimisticLockingFailure(OptimisticLockingFailureException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "Die Daten wurden gleichzeitig geändert. Bitte neu laden und erneut versuchen.");
     }
 
     // Die Datenbank ist die letzte Sicherung, z. B. bei zwei gleichzeitigen Registrierungen mit derselben E-Mail.
