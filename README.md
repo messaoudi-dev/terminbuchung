@@ -11,11 +11,12 @@ Grundprinzip: **wenige Funktionen, aber sauber umgesetzt und getestet.**
 | Bereich | Technik |
 |---|---|
 | Backend | Java 21, Spring Boot 4, Spring Data JPA, Bean Validation |
+| Frontend | Angular 22, TypeScript, Angular Material, Vitest |
 | Sicherheit | Spring Security, JWT (OAuth2 Resource Server, HS256), BCrypt |
 | Datenbank | PostgreSQL 18 (Docker Compose), Flyway für das Schema |
 | API-Dokumentation | OpenAPI / Swagger UI (springdoc) |
 | Tests | JUnit 5, Mockito, AssertJ, MockMvc, Spring Security Test, Testcontainers |
-| Geplant | Angular-Frontend, GitHub Actions |
+| Geplant | GitHub Actions |
 
 ## Umsetzung
 
@@ -27,6 +28,7 @@ Grundprinzip: **wenige Funktionen, aber sauber umgesetzt und getestet.**
 - **Keine Doppelbuchungen, auch bei gleichzeitigen Anfragen:** Ein Partial Unique Index in PostgreSQL erlaubt pro Arzt und Zeitpunkt nur einen gebuchten Termin; stornierte Termine geben den Zeitpunkt wieder frei. Gleichzeitige Änderungen am selben Termin verhindert Optimistic Locking (`@Version`).
 - **Stornieren statt Löschen:** Ein Termin bekommt den Status `STORNIERT` und bleibt erhalten.
 - **Datenbankschema nur über Flyway**, Hibernate prüft nur (`ddl-auto=validate`), `open-in-view=false`.
+- **Frontend:** Im Entwicklungsmodus leitet ein Proxy `/api` an das Backend weiter. Das JWT liegt nur im `sessionStorage`; ein Interceptor hängt das Token an jede Anfrage. Guards prüfen Anmeldung und Rolle. Geschäftsregeln prüft nur das Backend, das Frontend zeigt dessen Fehlermeldungen an.
 - **Keine Secrets im Repository:** Datenbank-Passwort, JWT-Secret und Zugangsdaten der Praxis kommen aus einer `.env`-Datei bzw. Umgebungsvariablen.
 
 ## Geschäftsregeln
@@ -44,7 +46,7 @@ Bewusst vereinfacht: Feiertage und Sprechzeiten pro Arzt sind nicht Teil von Ver
 
 ## Lokal starten
 
-Voraussetzungen: Java 21, Docker Desktop.
+Voraussetzungen: Java 21, Node.js 26, Docker Desktop.
 
 ```bash
 # 1. Konfigurationsdatei anlegen und eigene Werte eintragen
@@ -57,6 +59,12 @@ docker compose up -d
 # 3. Backend starten (im Ordner backend/)
 cd backend
 ./mvnw spring-boot:run
+
+# 4. Frontend starten (in einem zweiten Terminal, im Ordner frontend/)
+cd frontend
+npm install
+npm start
+# danach http://localhost:4200 öffnen
 ```
 
 Unter Windows (PowerShell): `Copy-Item .env.example .env` und `.\mvnw.cmd spring-boot:run`.
@@ -78,6 +86,13 @@ cd backend
 ```
 
 Die Tests starten mit Testcontainers eine eigene PostgreSQL-Datenbank. Docker muss laufen; die lokale Datenbank bleibt unberührt.
+
+Frontend-Tests (im Ordner frontend/):
+
+```bash
+cd frontend
+npm test -- --watch=false
+```
 
 ## API (bisher)
 
@@ -101,5 +116,5 @@ Die Tests starten mit Testcontainers eine eigene PostgreSQL-Datenbank. Docker mu
 - [x] Ärzte verwalten (CRUD) mit Validierung, Fehlerbehandlung, Swagger und Tests
 - [x] Login mit JWT und Rollen (Praxis, Patient)
 - [x] Termine buchen und stornieren, inkl. Schutz vor Doppelbuchungen
-- [ ] Angular-Frontend
+- [x] Angular-Frontend
 - [ ] GitHub Actions (automatische Tests)
