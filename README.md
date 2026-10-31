@@ -2,7 +2,7 @@
 
 > 🚧 **In Arbeit.** Das Projekt wird Schritt für Schritt erweitert. Aktueller Stand siehe [Fortschritt](#fortschritt).
 
-Eine Webanwendung, mit der Patienten Termine bei den Ärzten einer Praxis buchen und stornieren können. Die Praxis verwaltet ihre Ärzte.
+Eine Webanwendung, mit der Patienten Termine bei den Ärzten einer Praxis buchen und stornieren können. Die Praxis verwaltet ihre Ärzte und sieht alle Termine.
 
 Grundprinzip: **wenige Funktionen, aber sauber umgesetzt und getestet.**
 
@@ -14,17 +14,33 @@ Grundprinzip: **wenige Funktionen, aber sauber umgesetzt und getestet.**
 | Sicherheit | Spring Security, JWT (OAuth2 Resource Server, HS256), BCrypt |
 | Datenbank | PostgreSQL 18 (Docker Compose), Flyway für das Schema |
 | API-Dokumentation | OpenAPI / Swagger UI (springdoc) |
-| Tests | JUnit 5, Mockito, AssertJ, MockMvc, Spring Security Test |
+| Tests | JUnit 5, Mockito, AssertJ, MockMvc, Spring Security Test, Testcontainers |
 | Geplant | Angular-Frontend, GitHub Actions |
 
 ## Umsetzung
 
-- **Schichten pro Feature:** Controller → Service → Repository, Pakete nach Feature (`arzt`, `benutzer`, `security`).
+- **Schichten pro Feature:** Controller → Service → Repository, Pakete nach Feature (`arzt`, `benutzer`, `termin`, `security`).
 - **DTOs als Java Records:** Entities werden nie direkt als JSON angenommen oder zurückgegeben.
-- **Einheitliche Fehler:** zentral mit `@RestControllerAdvice` als `ProblemDetail` (RFC 9457): 400 mit Meldung pro Feld, 401, 403, 404, 409, nie ein Stacktrace beim Client.
+- **Einheitliche Fehler:** zentral mit `@RestControllerAdvice` als `ProblemDetail` (RFC 9457): 400, 401, 403, 404, 409, nie ein Stacktrace beim Client.
 - **Login mit JWT:** stateless, Rollen `PRAXIS` und `PATIENT`. Passwörter nur als BCrypt-Hash, nie in einer Antwort oder im Log.
-- **Datenbankschema nur über Flyway**, Hibernate prüft nur (`ddl-auto=validate`).
+- **Geschäftsregeln nur im Backend:** keine Termine in der Vergangenheit, 30-Minuten-Raster, feste Öffnungszeiten, Stornieren für Patienten nur bis 24 Stunden vorher. Die aktuelle Zeit kommt über eine injizierte `Clock`, damit die Regeln testbar sind.
+- **Keine Doppelbuchungen, auch bei gleichzeitigen Anfragen:** Ein Partial Unique Index in PostgreSQL erlaubt pro Arzt und Zeitpunkt nur einen gebuchten Termin; stornierte Termine geben den Zeitpunkt wieder frei. Gleichzeitige Änderungen am selben Termin verhindert Optimistic Locking (`@Version`).
+- **Stornieren statt Löschen:** Ein Termin bekommt den Status `STORNIERT` und bleibt erhalten.
+- **Datenbankschema nur über Flyway**, Hibernate prüft nur (`ddl-auto=validate`), `open-in-view=false`.
 - **Keine Secrets im Repository:** Datenbank-Passwort, JWT-Secret und Zugangsdaten der Praxis kommen aus einer `.env`-Datei bzw. Umgebungsvariablen.
+
+## Geschäftsregeln
+
+| Regel | Bei Verstoß |
+|---|---|
+| Kein Termin in der Vergangenheit | 400 |
+| Termine dauern 30 Minuten und beginnen zur vollen oder halben Stunde | 400 |
+| Öffnungszeiten: Montag bis Freitag, 8:00 bis 18:00 Uhr (letzter Beginn 17:30) | 400 |
+| Ein Arzt hat zu einer Zeit nur einen gebuchten Termin | 409 |
+| Patienten sehen und stornieren nur eigene Termine | 403 |
+| Patienten stornieren nur bis 24 Stunden vor Beginn (die Praxis jederzeit) | 409 |
+
+Bewusst vereinfacht: Feiertage und Sprechzeiten pro Arzt sind nicht Teil von Version 1.
 
 ## Lokal starten
 
@@ -50,9 +66,9 @@ Beim ersten Start legt die Anwendung den Praxis-Benutzer aus `PRAXIS_EMAIL` und 
 ### Ausprobieren mit Swagger UI
 
 1. http://localhost:8080/swagger-ui.html öffnen
-2. `POST /api/auth/login` mit den Praxis-Zugangsdaten aufrufen und das `token` kopieren
-3. Oben auf **Authorize** klicken und das Token einfügen
-4. Ärzte anlegen, ändern und löschen
+2. Als Praxis anmelden (`POST /api/auth/login`), Token über **Authorize** einfügen und einen Arzt anlegen
+3. Einen Patienten registrieren (`POST /api/auth/register`), anmelden und das neue Token über **Authorize** einfügen
+4. Einen Termin buchen (`POST /api/termine`), zum Beispiel am nächsten Werktag um 09:30 Uhr, und wieder stornieren
 
 ### Tests
 
@@ -61,7 +77,7 @@ cd backend
 ./mvnw test
 ```
 
-Die Tests brauchen die laufende Datenbank (`docker compose up -d`) und die Werte aus der `.env`.
+Die Tests starten mit Testcontainers eine eigene PostgreSQL-Datenbank. Docker muss laufen; die lokale Datenbank bleibt unberührt.
 
 ## API (bisher)
 
@@ -73,13 +89,17 @@ Die Tests brauchen die laufende Datenbank (`docker compose up -d`) und die Werte
 | GET | `/api/aerzte/{id}` | ein Arzt | angemeldet | 200, 401, 404 |
 | POST | `/api/aerzte` | Arzt anlegen | PRAXIS | 201, 400, 401, 403 |
 | PUT | `/api/aerzte/{id}` | Arzt ändern | PRAXIS | 200, 400, 401, 403, 404 |
-| DELETE | `/api/aerzte/{id}` | Arzt löschen | PRAXIS | 204, 401, 403, 404 |
+| DELETE | `/api/aerzte/{id}` | Arzt löschen (nicht, wenn er Termine hat) | PRAXIS | 204, 401, 403, 404, 409 |
+| POST | `/api/termine` | Termin buchen | PATIENT | 201, 400, 401, 403, 404, 409 |
+| GET | `/api/termine` | Termine (Patient: eigene, Praxis: alle) | angemeldet | 200, 401 |
+| GET | `/api/termine/{id}` | ein Termin | angemeldet | 200, 401, 403, 404 |
+| POST | `/api/termine/{id}/stornieren` | Termin stornieren | angemeldet | 200, 401, 403, 404, 409 |
 
 ## Fortschritt
 
 - [x] Projekt-Setup: Spring Boot, PostgreSQL mit Docker Compose, Flyway
 - [x] Ärzte verwalten (CRUD) mit Validierung, Fehlerbehandlung, Swagger und Tests
 - [x] Login mit JWT und Rollen (Praxis, Patient)
-- [ ] Termine buchen und stornieren, inkl. Schutz vor Doppelbuchungen
+- [x] Termine buchen und stornieren, inkl. Schutz vor Doppelbuchungen
 - [ ] Angular-Frontend
 - [ ] GitHub Actions (automatische Tests)
