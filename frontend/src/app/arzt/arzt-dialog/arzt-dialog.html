@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>{{ arzt === null ? 'Arzt anlegen' : 'Arzt ändern' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="speichern()">
+  <mat-dialog-content class="dialog-formular">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>Name ist ein Pflichtfeld.</mat-error>
+      } @else if (form.controls.name.hasError('maxlength')) {
+        <mat-error>Höchstens 100 Zeichen.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Fachrichtung</mat-label>
+      <input matInput formControlName="fachrichtung" />
+      @if (form.controls.fachrichtung.hasError('required')) {
+        <mat-error>Fachrichtung ist ein Pflichtfeld.</mat-error>
+      } @else if (form.controls.fachrichtung.hasError('maxlength')) {
+        <mat-error>Höchstens 100 Zeichen.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (fehler(); as fehler) {
+      <div class="fehlerbox" role="alert">
+        <p>{{ fehler.text }}</p>
+        @if (fehler.feldFehler.length > 0) {
+          <ul>
+            @for (meldung of fehler.feldFehler; track meldung) {
+              <li>{{ meldung }}</li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Abbrechen</button>
+    <button mat-flat-button type="submit" [disabled]="sendet()">Speichern</button>
+  </mat-dialog-actions>
+</form>

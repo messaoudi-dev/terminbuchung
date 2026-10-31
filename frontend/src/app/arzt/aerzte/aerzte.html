@@ -1,0 +1,41 @@
+<div class="seitenkopf">
+  <h1>Ärzte</h1>
+  @if (istPraxis) {
+    <button mat-flat-button type="button" (click)="anlegen()">Arzt anlegen</button>
+  }
+</div>
+
+@if (fehler(); as fehler) {
+  <div class="fehlerbox" role="alert">
+    <p>{{ fehler.text }}</p>
+  </div>
+}
+
+@if (laedt()) {
+  <mat-progress-bar mode="indeterminate" />
+} @else if (aerzte().length === 0) {
+  <p class="hinweis">Noch keine Ärzte angelegt.</p>
+} @else {
+  <table mat-table [dataSource]="aerzte()">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let arzt">{{ arzt.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="fachrichtung">
+      <th mat-header-cell *matHeaderCellDef>Fachrichtung</th>
+      <td mat-cell *matCellDef="let arzt">{{ arzt.fachrichtung }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="aktionen">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let arzt" class="aktionen">
+        <button mat-button type="button" (click)="aendern(arzt)">Ändern</button>
+        <button mat-button type="button" (click)="loeschen(arzt)">Löschen</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="spalten"></tr>
+    <tr mat-row *matRowDef="let row; columns: spalten"></tr>
+  </table>
+}

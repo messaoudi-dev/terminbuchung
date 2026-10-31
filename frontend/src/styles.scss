@@ -56,7 +56,25 @@ body {
   color: var(--mat-sys-on-secondary-container);
 }
 
+.seitenkopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dialog-formular {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aktionen {
+  text-align: right;
+}
+
 .fehlerbox {
+  margin-bottom: 16px;
+
   padding: 12px;
   border-radius: 8px;
   background-color: var(--mat-sys-error-container);

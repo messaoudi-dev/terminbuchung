@@ -1,0 +1,65 @@
+<mat-card class="formular-karte">
+  <mat-card-header>
+    <mat-card-title>Termin buchen</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="buchen()">
+      <mat-form-field appearance="outline">
+        <mat-label>Arzt</mat-label>
+        <mat-select formControlName="arztId">
+          @for (arzt of aerzte(); track arzt.id) {
+            <mat-option [value]="arzt.id">{{ arzt.name }} ({{ arzt.fachrichtung }})</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.arztId.hasError('required')) {
+          <mat-error>Bitte einen Arzt auswählen.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Datum</mat-label>
+        <input
+          matInput
+          readonly
+          formControlName="datum"
+          [matDatepicker]="datepicker"
+          [min]="heute"
+          (click)="datepicker.open()"
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="datepicker" />
+        <mat-datepicker #datepicker />
+        @if (form.controls.datum.hasError('required')) {
+          <mat-error>Bitte ein Datum auswählen.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Uhrzeit</mat-label>
+        <mat-select formControlName="uhrzeit">
+          @for (uhrzeit of uhrzeiten; track uhrzeit) {
+            <mat-option [value]="uhrzeit">{{ uhrzeit }} Uhr</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.uhrzeit.hasError('required')) {
+          <mat-error>Bitte eine Uhrzeit auswählen.</mat-error>
+        }
+      </mat-form-field>
+
+      @if (fehler(); as fehler) {
+        <div class="fehlerbox" role="alert">
+          <p>{{ fehler.text }}</p>
+          @if (fehler.feldFehler.length > 0) {
+            <ul>
+              @for (meldung of fehler.feldFehler; track meldung) {
+                <li>{{ meldung }}</li>
+              }
+            </ul>
+          }
+        </div>
+      }
+
+      <button mat-flat-button type="submit" [disabled]="sendet()">Buchen</button>
+    </form>
+  </mat-card-content>
+</mat-card>
