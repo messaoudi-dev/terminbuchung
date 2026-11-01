@@ -1,5 +1,7 @@
 # Terminbuchung für Arztpraxen
 
+[![CI](https://github.com/messaoudi-dev/terminbuchung/actions/workflows/ci.yml/badge.svg)](https://github.com/messaoudi-dev/terminbuchung/actions/workflows/ci.yml)
+
 > 🚧 **In Arbeit.** Das Projekt wird Schritt für Schritt erweitert. Aktueller Stand siehe [Fortschritt](#fortschritt).
 
 Eine Webanwendung, mit der Patienten Termine bei den Ärzten einer Praxis buchen und stornieren können. Die Praxis verwaltet ihre Ärzte und sieht alle Termine.
@@ -16,7 +18,7 @@ Grundprinzip: **wenige Funktionen, aber sauber umgesetzt und getestet.**
 | Datenbank | PostgreSQL 18 (Docker Compose), Flyway für das Schema |
 | API-Dokumentation | OpenAPI / Swagger UI (springdoc) |
 | Tests | JUnit 5, Mockito, AssertJ, MockMvc, Spring Security Test, Testcontainers |
-| Geplant | GitHub Actions |
+| CI | GitHub Actions (Backend- und Frontend-Tests bei jedem Push und Pull Request) |
 
 ## Umsetzung
 
@@ -117,4 +119,4 @@ npm test -- --watch=false
 - [x] Login mit JWT und Rollen (Praxis, Patient)
 - [x] Termine buchen und stornieren, inkl. Schutz vor Doppelbuchungen
 - [x] Angular-Frontend
-- [ ] GitHub Actions (automatische Tests)
+- [x] GitHub Actions (automatische Tests)
