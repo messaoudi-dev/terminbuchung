@@ -2,11 +2,20 @@
 
 [![CI](https://github.com/messaoudi-dev/terminbuchung/actions/workflows/ci.yml/badge.svg)](https://github.com/messaoudi-dev/terminbuchung/actions/workflows/ci.yml)
 
-> 🚧 **In Arbeit.** Das Projekt wird Schritt für Schritt erweitert. Aktueller Stand siehe [Fortschritt](#fortschritt).
-
 Eine Webanwendung, mit der Patienten Termine bei den Ärzten einer Praxis buchen und stornieren können. Die Praxis verwaltet ihre Ärzte und sieht alle Termine.
 
 Grundprinzip: **wenige Funktionen, aber sauber umgesetzt und getestet.**
+
+## Screenshots
+
+![Formular „Termin buchen“ mit Arzt, Datum und Uhrzeit](docs/screenshots/termin-buchen.png)
+*Termin buchen: Termine dauern 30 Minuten und beginnen zur vollen oder halben Stunde.*
+
+![Liste „Meine Termine“ mit gebuchten und stornierten Terminen](docs/screenshots/meine-termine.png)
+*Ein Patient sieht nur eigene Termine; stornierte Termine bleiben mit Status „Storniert“ erhalten.*
+
+![Fehlermeldung bei einer Doppelbuchung](docs/screenshots/doppelbuchung.png)
+*Keine Doppelbuchung: Das Backend lehnt den Termin mit 409 ab, abgesichert durch einen Partial Unique Index in PostgreSQL, auch bei gleichzeitigen Anfragen.*
 
 ## Technik
 
@@ -96,7 +105,7 @@ cd frontend
 npm test -- --watch=false
 ```
 
-## API (bisher)
+## API
 
 | Methode | Pfad | Beschreibung | Zugriff | Antworten |
 |---|---|---|---|---|
